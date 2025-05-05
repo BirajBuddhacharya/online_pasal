@@ -1,22 +1,31 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
-const MONGODB_URI = process.env.MONGODB_URI || '';
+const MONGODB_URI = process.env.MONGODB_URI!
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
+  throw new Error("Please define the MONGODB_URI environment variable")
 }
 
-let cached = global.mongoose as { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null };
+let cached = global.mongoose
 
+// Initialize the cached global variable if it doesn't exist yet
 if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+  cached = global.mongoose = { conn: null, promise: null }
 }
 
-export async function connectDB() {
-  if (cached.conn) return cached.conn;
+export async function connectToDatabase() {
+  // Return the cached connection if available
+  if (cached.conn) return cached.conn
+
+  // Only set the promise if it doesn't exist
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI).then(m => m);
+    // This line causes the error, we're going to cast it to the correct type
+    cached.promise = mongoose.connect(MONGODB_URI, {
+      bufferCommands: false,
+    }) as Promise<typeof mongoose>
   }
-  cached.conn = await cached.promise;
-  return cached.conn;
+
+  // Resolve the connection and store it in the cache
+  cached.conn = await cached.promise
+  return cached.conn
 }

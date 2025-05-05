@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-let items: string[] = ["Apple", "Banana", "Orange"];
+const items: string[] = ["Apple", "Banana", "Orange"];
 
 type Data =
   | { success: true; data: string[] }
